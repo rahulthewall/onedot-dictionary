@@ -1,12 +1,20 @@
 import React from "react";
 import { Provider } from "react-redux";
+import { BrowserRouter, Route, Switch } from "react-router-dom";
 
 import { store } from "./modules/redux";
+import { Dictionaries, NoMatch, Dictionary } from "./routes";
 
 const App: React.FC = () => {
   return (
     <Provider store={store}>
-      <div>Dictionaries</div>
+      <BrowserRouter>
+        <Switch>
+          <Route exact path="/" component={Dictionaries} />
+          <Route exact path="/dictionary/:id" component={Dictionary} />
+          <Route component={NoMatch} />
+        </Switch>
+      </BrowserRouter>
     </Provider>
   );
 };
