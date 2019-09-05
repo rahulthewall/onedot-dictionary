@@ -2,7 +2,6 @@ import { createStore } from 'redux';
 // import { devToolsEnhancer } from "redux-devtools-extension";
 
 import { rootReducer } from './rootReducer';
-import { RootAction, RootState } from './types';
 
 // rehydrate state on app start
 const initialState = {};
