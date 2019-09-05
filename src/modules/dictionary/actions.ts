@@ -1,6 +1,6 @@
-import { action } from "typesafe-actions";
+import { action } from 'typesafe-actions';
 
-import { Dictionary, IDictionary, IDictionaryPair } from "./types";
+import { Dictionary, IDictionary, IDictionaryPair } from './types';
 
 const addDictionaryAction = (dictionary: IDictionary) =>
   action(Dictionary.ADD_DICTIONARY, dictionary);
@@ -22,5 +22,5 @@ export {
   removeDictionaryAction,
   addDictionaryPairAction,
   editDictionaryPairAction,
-  removeDictionaryPairAction
+  removeDictionaryPairAction,
 };

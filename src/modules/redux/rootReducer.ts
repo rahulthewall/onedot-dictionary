@@ -1,16 +1,13 @@
-import { combineReducers } from "redux";
+import { combineReducers } from 'redux';
 
-import {
-  dictionaryReducer,
-  initialDictionaryState
-} from "../dictionary/reducer";
+import { dictionaryReducer, initialDictionaryState } from '../dictionary/reducer';
 
 const rootInitialState = {
-  dictionaryReducer: initialDictionaryState
+  dictionaryReducer: initialDictionaryState,
 };
 
 const rootReducer = combineReducers({
-  dictionaryReducer
+  dictionaryReducer,
 });
 
 export { rootInitialState, rootReducer };

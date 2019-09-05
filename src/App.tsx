@@ -1,9 +1,9 @@
-import React from "react";
-import { Provider } from "react-redux";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
+import React from 'react';
+import { Provider } from 'react-redux';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
 
-import { store } from "./modules/redux";
-import { Dictionaries, NoMatch, Dictionary } from "./routes";
+import { store } from './modules/redux';
+import { Dictionaries, NoMatch, Dictionary } from './routes';
 
 import 'antd/dist/antd.css';
 

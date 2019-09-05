@@ -1,7 +1,7 @@
-import * as dictionaryActions from "../dictionary/actions";
+import * as dictionaryActions from '../dictionary/actions';
 
 const rootAction = {
-  dictionaryActions
+  dictionaryActions,
 };
 
 export { rootAction };
