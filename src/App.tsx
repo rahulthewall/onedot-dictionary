@@ -6,12 +6,14 @@ import { Layout, Typography } from 'antd';
 import { store } from './modules/redux';
 import { Dictionaries, NoMatch, Dictionary } from './routes';
 
+import styles from './App.module.css';
+
 const App: React.FC = () => {
   return (
     <Provider store={store}>
       <Layout>
-        <Layout.Header>
-          <Typography.Title>Dictionary Portal</Typography.Title>
+        <Layout.Header className={styles.appHeader}>
+          <Typography.Title>Dictionary Management Application</Typography.Title>
         </Layout.Header>
         <Layout.Content>
           <BrowserRouter>
