@@ -7,6 +7,8 @@ import {
   Dictionary,
   IDictionary,
   IDictionaryPair,
+  IDictionaryListItem,
+  ConsistencyIssues,
 } from './types';
 
 // Read existing list of dictionaries
@@ -14,6 +16,51 @@ const dictionaries = JSON.parse(localStorage.getItem('dictionaries') || '[]') as
 
 const initialDictionaryState: DictionaryState = {
   dictionaries,
+};
+
+const checkConsistency = (dictPairs: IDictionaryListItem[]) => {
+  return dictPairs.map((dictPair) => {
+    const errors: ConsistencyIssues[] = [];
+    const restPairs = dictPairs.filter((pair) => pair.id !== dictPair.id);
+
+    // Check for duplicates
+    if (
+      restPairs.some((pair) => pair.domain === dictPair.domain && pair.range === dictPair.range)
+    ) {
+      errors.push(ConsistencyIssues.DUPLICATES);
+    }
+
+    // Check for forks
+    if (
+      restPairs.some((pair) => pair.domain === dictPair.domain && pair.range !== dictPair.range)
+    ) {
+      errors.push(ConsistencyIssues.FORKS);
+    }
+
+    // Check for cycles
+    if (
+      restPairs.some((pair) => pair.domain === dictPair.range && pair.range === dictPair.domain)
+    ) {
+      errors.push(ConsistencyIssues.CYCLES);
+    }
+
+    // Check for chains
+    if (
+      restPairs.some((pair) => pair.domain === dictPair.range && pair.range !== dictPair.domain)
+    ) {
+      errors.push(ConsistencyIssues.CHAINS);
+    }
+
+    // No error
+    if (errors.length === 0) {
+      errors.push(ConsistencyIssues.NONE);
+    }
+
+    return {
+      ...dictPair,
+      errors,
+    };
+  });
 };
 
 const dictionaryReducer = createReducer<DictionaryState, DictionaryActions>(
@@ -62,14 +109,17 @@ const dictionaryReducer = createReducer<DictionaryState, DictionaryActions>(
       currentPairs.push({
         ...action.payload.pair,
         editMode: false,
-        errors: [], // TODO: Add errors
+        errors: [],
       });
 
+      // Check for errors
+      const withErrors = checkConsistency(currentPairs);
+
       // Save in local storage
-      localStorage.setItem(action.payload.dict.id, JSON.stringify(currentPairs));
+      localStorage.setItem(action.payload.dict.id, JSON.stringify(withErrors));
 
       return merge(state, {
-        currentDictionary: currentPairs,
+        currentDictionary: withErrors,
       });
     },
     [Dictionary.REMOVE_DICTIONARY_PAIR]: (state, action) => {
@@ -150,15 +200,16 @@ const dictionaryReducer = createReducer<DictionaryState, DictionaryActions>(
           : pair
       );
 
-      // TODO: Update errors
+      // Check for errors
+      const withErrors = checkConsistency(updatedDictionary);
 
       // Save in local storage
-      localStorage.setItem(action.payload.dictId, JSON.stringify(updatedDictionary));
+      localStorage.setItem(action.payload.dictId, JSON.stringify(withErrors));
 
       return mergeWith(
         state,
         {
-          currentDictionary: updatedDictionary,
+          currentDictionary: withErrors,
           editState: updatedEditState,
         },
         (obj, src) => {

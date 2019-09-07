@@ -14,7 +14,15 @@ import {
   saveDictionaryPairAction,
 } from '../../modules/dictionary/actions';
 import { dictionary, dictionaries, editState } from '../../modules/dictionary/selectors';
-import { IDictionaryPair, IDictionaryListItem } from '../../modules/dictionary/types';
+import {
+  IDictionaryPair,
+  IDictionaryListItem,
+  ConsistencyIssues,
+} from '../../modules/dictionary/types';
+
+import { formatError } from './helpers';
+
+import styles from './Dictionary.module.css';
 
 interface IMatchParams {
   id: string;
@@ -137,73 +145,78 @@ const Dictionary: React.FC<RouteComponentProps<IMatchParams>> = ({
       },
     },
     {
+      title: 'Errors',
+      key: 'errors',
+      dataIndex: 'errors',
+      render: (errors: ConsistencyIssues[]) => (
+        <React.Fragment>
+          {errors.map((error) => (
+            <span>{formatError(error.replace('dictionary/', '').toLowerCase())}</span>
+          ))}
+        </React.Fragment>
+      ),
+    },
+    {
       title: 'Action',
       key: 'action',
       render: (text: string, record: IDictionaryListItem) => {
-        const buttonSpan = currentEditState.length ? 6 : 3;
         const currentEditPair = currentEditState.find((pair) => pair.id === record.id);
         return (
           <React.Fragment>
             {record.editMode ? (
               <Row>
-                <Col span={6}>
-                  <Button
-                    size="small"
-                    onClick={() => {
-                      if (currentEditPair && currentDict) {
-                        dispatch(
-                          saveDictionaryPairAction({
-                            ...currentEditPair,
-                            dictId: currentDict.id,
-                          })
-                        );
-                      }
-                    }}
-                  >
-                    Save
-                  </Button>
-                </Col>
-                <Col span={6} offset={2}>
-                  <Button
-                    size="small"
-                    onClick={() => {
-                      dispatch(cancelEditDictionaryPairAction(record.id));
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </Col>
+                <Button
+                  className={styles.firstButton}
+                  size="small"
+                  onClick={() => {
+                    if (currentEditPair && currentDict) {
+                      dispatch(
+                        saveDictionaryPairAction({
+                          ...currentEditPair,
+                          dictId: currentDict.id,
+                        })
+                      );
+                    }
+                  }}
+                >
+                  Save
+                </Button>
+                <Button
+                  size="small"
+                  onClick={() => {
+                    dispatch(cancelEditDictionaryPairAction(record.id));
+                  }}
+                >
+                  Cancel
+                </Button>
               </Row>
             ) : (
               <Row>
-                <Col span={buttonSpan}>
-                  <Button
-                    size="small"
-                    onClick={() => {
-                      handleEditDictionaryPair(record.id);
-                    }}
-                  >
-                    Edit
+                <Button
+                  className={styles.firstButton}
+                  size="small"
+                  onClick={() => {
+                    handleEditDictionaryPair(record.id);
+                  }}
+                >
+                  Edit
+                </Button>
+                <Popconfirm
+                  title={`Are you sure you want to delete the pair '${record.domain}, ${record.range}'`}
+                  onConfirm={() =>
+                    handleDeleteDictionaryPair({
+                      id: record.id,
+                      domain: record.domain,
+                      range: record.range,
+                    })
+                  }
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <Button size="small" type="danger">
+                    Delete
                   </Button>
-                </Col>
-                <Col span={buttonSpan} offset={1}>
-                  <Popconfirm
-                    title={`Are you sure you want to delete the pair '${record.domain}, ${record.range}'`}
-                    onConfirm={() =>
-                      handleDeleteDictionaryPair({
-                        id: record.id,
-                        domain: record.domain,
-                        range: record.range,
-                      })
-                    }
-                    okText="Yes"
-                    cancelText="No"
-                  >
-                    <Button size="small" type="danger">
-                      Delete
-                    </Button>
-                  </Popconfirm>
-                </Col>
+                </Popconfirm>
               </Row>
             )}
           </React.Fragment>
