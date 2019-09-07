@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Row, Col, Table, Typography, Button, Modal, Input } from 'antd';
+import { Row, Col, Table, Typography, Button, Modal, Input, Popconfirm } from 'antd';
 import uuid from 'uuid';
 
 import {
@@ -43,7 +43,7 @@ const Dictionary: React.FC<RouteComponentProps<IMatchParams>> = ({
     dispatch(loadDictionaryAction(id));
   }, [match, dispatch]);
 
-  const handleAddDictionaryPair = (event: React.MouseEvent<HTMLElement>) => {
+  const handleAddDictionaryPair = () => {
     if (currentDict) {
       dispatch(
         addDictionaryPairAction({
@@ -149,7 +149,7 @@ const Dictionary: React.FC<RouteComponentProps<IMatchParams>> = ({
                 <Col span={6}>
                   <Button
                     size="small"
-                    onClick={(event: React.MouseEvent<HTMLElement>) => {
+                    onClick={() => {
                       if (currentEditPair && currentDict) {
                         dispatch(
                           saveDictionaryPairAction({
@@ -166,7 +166,7 @@ const Dictionary: React.FC<RouteComponentProps<IMatchParams>> = ({
                 <Col span={6} offset={2}>
                   <Button
                     size="small"
-                    onClick={(event: React.MouseEvent<HTMLElement>) => {
+                    onClick={() => {
                       dispatch(cancelEditDictionaryPairAction(record.id));
                     }}
                   >
@@ -179,7 +179,7 @@ const Dictionary: React.FC<RouteComponentProps<IMatchParams>> = ({
                 <Col span={buttonSpan}>
                   <Button
                     size="small"
-                    onClick={(event: React.MouseEvent<HTMLElement>) => {
+                    onClick={() => {
                       handleEditDictionaryPair(record.id);
                     }}
                   >
@@ -187,19 +187,22 @@ const Dictionary: React.FC<RouteComponentProps<IMatchParams>> = ({
                   </Button>
                 </Col>
                 <Col span={buttonSpan} offset={1}>
-                  <Button
-                    size="small"
-                    type="danger"
-                    onClick={(event: React.MouseEvent<HTMLElement>) =>
+                  <Popconfirm
+                    title={`Are you sure you want to delete the pair '${record.domain}, ${record.range}'`}
+                    onConfirm={() =>
                       handleDeleteDictionaryPair({
                         id: record.id,
                         domain: record.domain,
                         range: record.range,
                       })
                     }
+                    okText="Yes"
+                    cancelText="No"
                   >
-                    Delete
-                  </Button>
+                    <Button size="small" type="danger">
+                      Delete
+                    </Button>
+                  </Popconfirm>
                 </Col>
               </Row>
             )}
