@@ -86,6 +86,89 @@ const dictionaryReducer = createReducer<DictionaryState, DictionaryActions>(
         return obj;
       });
     },
+    [Dictionary.TOGGLE_EDIT_DICTIONARY_PAIR]: (state, action) => {
+      const currentDictionary = clone(state.currentDictionary) || [];
+      const currentEditState = state.editState ? clone(state.editState) : [];
+      const toggledPair = currentDictionary.find((pair) => pair.id === action.payload);
+      if (toggledPair) {
+        currentEditState.push({
+          id: toggledPair.id,
+          domain: toggledPair.domain,
+          range: toggledPair.range,
+        });
+      }
+      const updatedDictionary = currentDictionary.map((pair) =>
+        pair.id === action.payload ? { ...pair, editMode: true } : pair
+      );
+      return merge(state, {
+        currentDictionary: updatedDictionary,
+        editState: currentEditState,
+      });
+    },
+    [Dictionary.EDIT_DICTIONARY_PAIR]: (state, action) => {
+      const currentEditState = clone(state.editState) || [];
+      const updatedEditState = currentEditState.map((editPair) =>
+        editPair.id === action.payload.id ? action.payload : editPair
+      );
+      return merge(state, {
+        editState: updatedEditState,
+      });
+    },
+    [Dictionary.CANCEL_EDIT_DICTIONARY_PAIR]: (state, action) => {
+      const currentEditState = clone(state.editState) || [];
+      const updatedEditState = currentEditState.filter((pair) => pair.id !== action.payload);
+      const currentDictionary = clone(state.currentDictionary) || [];
+      const updatedDictionary = currentDictionary.map((pair) =>
+        pair.id === action.payload ? { ...pair, editMode: false } : pair
+      );
+      return mergeWith(
+        state,
+        {
+          currentDictionary: updatedDictionary,
+          editState: updatedEditState,
+        },
+        (obj, src) => {
+          if (!isNil(src)) {
+            return src;
+          }
+          return obj;
+        }
+      );
+    },
+    [Dictionary.SAVE_DICTIONARY_PAIR]: (state, action) => {
+      const currentEditState = clone(state.editState) || [];
+      const updatedEditState = currentEditState.filter((pair) => pair.id !== action.payload.id);
+      const currentDictionary = clone(state.currentDictionary) || [];
+      const updatedDictionary = currentDictionary.map((pair) =>
+        pair.id === action.payload.id
+          ? {
+              ...pair,
+              domain: action.payload.domain,
+              range: action.payload.range,
+              editMode: false,
+            }
+          : pair
+      );
+
+      // TODO: Update errors
+
+      // Save in local storage
+      localStorage.setItem(action.payload.dictId, JSON.stringify(updatedDictionary));
+
+      return mergeWith(
+        state,
+        {
+          currentDictionary: updatedDictionary,
+          editState: updatedEditState,
+        },
+        (obj, src) => {
+          if (!isNil(src)) {
+            return src;
+          }
+          return obj;
+        }
+      );
+    },
   }
 );
 

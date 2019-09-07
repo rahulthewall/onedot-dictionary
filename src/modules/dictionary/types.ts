@@ -24,9 +24,14 @@ export interface IDictionaryListItem extends IDictionaryPair {
   errors: ConsistencyIssues[];
 }
 
+export interface IDictionaryPairSaveItem extends IDictionaryPair {
+  dictId: string;
+}
+
 export interface DictionaryState {
   dictionaries: IDictionary[];
   currentDictionary?: IDictionaryListItem[];
+  editState?: IDictionaryPair[];
 }
 
 /* Error States */
@@ -44,6 +49,9 @@ export enum Dictionary {
   REMOVE_DICTIONARY = 'dictionary/REMOVE_DICTIONARY',
   LOAD_DICTIONARY = 'dictionary/LOAD_DICTIONARY',
   ADD_DICTIONARY_PAIR = 'dictionary/ADD_DICTIONARY_PAIR',
+  TOGGLE_EDIT_DICTIONARY_PAIR = 'dictionary/TOGGLE_EDIT_DICTIONARY_PAIR',
   EDIT_DICTIONARY_PAIR = 'dictionary/EDIT_DICTIONARY_PAIR',
+  CANCEL_EDIT_DICTIONARY_PAIR = 'dictionary/CANCEL_EDIT_DICTIONARY_PAIR',
   REMOVE_DICTIONARY_PAIR = 'dictionary/REMOVE_DICTIONARY_PAIR',
+  SAVE_DICTIONARY_PAIR = 'dictionary/SAVE_DICTIONARY_PAIR',
 }

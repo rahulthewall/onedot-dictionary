@@ -9,4 +9,6 @@ const dictionary = (state: RootState) =>
     ...pair,
   }));
 
-export { dictionaries, dictionary };
+const editState = (state: RootState) => state.dictionaryReducer.editState || [];
+
+export { dictionaries, dictionary, editState };

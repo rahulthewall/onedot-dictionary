@@ -8,8 +8,12 @@ import {
   loadDictionaryAction,
   addDictionaryPairAction,
   removeDictionaryPairAction,
+  toggleEditDictionaryPairAction,
+  editDictionaryPairAction,
+  cancelEditDictionaryPairAction,
+  saveDictionaryPairAction,
 } from '../../modules/dictionary/actions';
-import { dictionary, dictionaries } from '../../modules/dictionary/selectors';
+import { dictionary, dictionaries, editState } from '../../modules/dictionary/selectors';
 import { IDictionaryPair, IDictionaryListItem } from '../../modules/dictionary/types';
 
 interface IMatchParams {
@@ -28,6 +32,7 @@ const Dictionary: React.FC<RouteComponentProps<IMatchParams>> = ({
   const dispatch = useDispatch();
   const dictPairs = useSelector(dictionary);
   const dicts = useSelector(dictionaries);
+  const currentEditState = useSelector(editState);
   const [newDictionaryPair, setNewDictionaryPair] = useState(initialDictPair());
   const [dictPairForm, setDictPairForm] = useState(false);
 
@@ -62,42 +67,145 @@ const Dictionary: React.FC<RouteComponentProps<IMatchParams>> = ({
     }
   };
 
+  const handleEditDictionaryPair = (id: string) => {
+    dispatch(toggleEditDictionaryPairAction(id));
+  };
+
   const columns = [
     {
       title: 'Domain',
       dataIndex: 'domain',
       key: 'domain',
+      render: (text: string, record: IDictionaryListItem) => {
+        const currentDictPair = currentEditState.find((pair) => pair.id === record.id);
+        return (
+          <React.Fragment>
+            {record.editMode && currentDictPair ? (
+              <Row>
+                <Col span={12}>
+                  <Input
+                    value={currentDictPair.domain}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                      dispatch(
+                        editDictionaryPairAction({
+                          id: currentDictPair.id,
+                          domain: event.target.value,
+                          range: currentDictPair.range,
+                        })
+                      );
+                    }}
+                  />
+                </Col>
+              </Row>
+            ) : (
+              <span>{text}</span>
+            )}
+          </React.Fragment>
+        );
+      },
     },
     {
       title: 'Range',
       dataIndex: 'range',
       key: 'range',
+      render: (text: string, record: IDictionaryListItem) => {
+        const currentDictPair = currentEditState.find((pair) => pair.id === record.id);
+        return (
+          <React.Fragment>
+            {record.editMode && currentDictPair ? (
+              <Row>
+                <Col span={12}>
+                  <Input
+                    value={currentDictPair.range}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                      dispatch(
+                        editDictionaryPairAction({
+                          id: currentDictPair.id,
+                          domain: currentDictPair.domain,
+                          range: event.target.value,
+                        })
+                      );
+                    }}
+                  />
+                </Col>
+              </Row>
+            ) : (
+              <span>{text}</span>
+            )}
+          </React.Fragment>
+        );
+      },
     },
     {
       title: 'Action',
       key: 'action',
-      render: (text: string, record: IDictionaryListItem) => (
-        <Row>
-          <Col span={3}>
-            <Button size="small">Edit</Button>
-          </Col>
-          <Col span={3} offset={1}>
-            <Button
-              size="small"
-              type="danger"
-              onClick={(event: React.MouseEvent<HTMLElement>) =>
-                handleDeleteDictionaryPair({
-                  id: record.id,
-                  domain: record.domain,
-                  range: record.range,
-                })
-              }
-            >
-              Delete
-            </Button>
-          </Col>
-        </Row>
-      ),
+      render: (text: string, record: IDictionaryListItem) => {
+        const buttonSpan = currentEditState.length ? 6 : 3;
+        const currentEditPair = currentEditState.find((pair) => pair.id === record.id);
+        return (
+          <React.Fragment>
+            {record.editMode ? (
+              <Row>
+                <Col span={6}>
+                  <Button
+                    size="small"
+                    onClick={(event: React.MouseEvent<HTMLElement>) => {
+                      if (currentEditPair && currentDict) {
+                        dispatch(
+                          saveDictionaryPairAction({
+                            ...currentEditPair,
+                            dictId: currentDict.id,
+                          })
+                        );
+                      }
+                    }}
+                  >
+                    Save
+                  </Button>
+                </Col>
+                <Col span={6} offset={2}>
+                  <Button
+                    size="small"
+                    onClick={(event: React.MouseEvent<HTMLElement>) => {
+                      dispatch(cancelEditDictionaryPairAction(record.id));
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </Col>
+              </Row>
+            ) : (
+              <Row>
+                <Col span={buttonSpan}>
+                  <Button
+                    size="small"
+                    onClick={(event: React.MouseEvent<HTMLElement>) => {
+                      handleEditDictionaryPair(record.id);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                </Col>
+                <Col span={buttonSpan} offset={1}>
+                  <Button
+                    size="small"
+                    type="danger"
+                    onClick={(event: React.MouseEvent<HTMLElement>) =>
+                      handleDeleteDictionaryPair({
+                        id: record.id,
+                        domain: record.domain,
+                        range: record.range,
+                      })
+                    }
+                  >
+                    Delete
+                  </Button>
+                </Col>
+              </Row>
+            )}
+          </React.Fragment>
+        );
+      },
     },
   ];
 
