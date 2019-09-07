@@ -126,10 +126,13 @@ const dictionaryReducer = createReducer<DictionaryState, DictionaryActions>(
       const currentPairs = state.currentDictionary ? clone(state.currentDictionary) : [];
       const updatedPairs = currentPairs.filter((pair) => pair.id !== action.payload.pair.id);
 
-      // Save in location storage
-      localStorage.setItem(action.payload.dict.id, JSON.stringify(updatedPairs));
+      // Check for errors
+      const withErrors = checkConsistency(updatedPairs);
 
-      return mergeWith(state, { currentDictionary: updatedPairs }, (obj, src) => {
+      // Save in location storage
+      localStorage.setItem(action.payload.dict.id, JSON.stringify(withErrors));
+
+      return mergeWith(state, { currentDictionary: withErrors }, (obj, src) => {
         if (!isNil(src)) {
           return src;
         }
