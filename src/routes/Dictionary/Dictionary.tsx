@@ -19,6 +19,7 @@ import {
   IDictionaryListItem,
   ConsistencyIssues,
 } from '../../modules/dictionary/types';
+import { NoMatch } from '../';
 
 import { formatError } from './helpers';
 
@@ -275,7 +276,7 @@ const Dictionary: React.FC<RouteComponentProps<IMatchParams>> = ({
           </Col>
         </Row>
       ) : (
-        <div>Not found</div>
+        <NoMatch />
       )}
     </React.Fragment>
   );
