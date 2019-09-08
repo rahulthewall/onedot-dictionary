@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { List, Typography, Row, Col, Button, Modal, Input, Popconfirm } from 'antd';
+import { List, Typography, Row, Col, Button, Modal, Input, Popconfirm, notification } from 'antd';
 import { Link } from 'react-router-dom';
 import uuid from 'uuid';
 
@@ -15,12 +15,19 @@ const Dictionaries: React.FC = () => {
   const dispatch = useDispatch();
 
   const handleAddDictionary = (event: React.MouseEvent<HTMLElement>) => {
-    dispatch(
-      addDictionaryAction({
-        name: dictionaryName,
-        id: uuid.v4(),
-      })
-    );
+    if (dictionaryName !== '') {
+      dispatch(
+        addDictionaryAction({
+          name: dictionaryName,
+          id: uuid.v4(),
+        })
+      );
+    } else {
+      notification['error']({
+        message: 'Error',
+        description: 'Dictionary name can not be an empty string',
+      });
+    }
     setAddDictionary(false);
     setDictionaryName('');
   };

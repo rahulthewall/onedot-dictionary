@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Row, Col, Table, Typography, Button, Modal, Input, Popconfirm } from 'antd';
+import { Row, Col, Table, Typography, Button, Modal, Input, Popconfirm, notification } from 'antd';
 import uuid from 'uuid';
 
 import {
@@ -54,12 +54,19 @@ const Dictionary: React.FC<RouteComponentProps<IMatchParams>> = ({
 
   const handleAddDictionaryPair = () => {
     if (currentDict) {
-      dispatch(
-        addDictionaryPairAction({
-          dict: currentDict,
-          pair: newDictionaryPair,
-        })
-      );
+      if (newDictionaryPair.domain !== '' && newDictionaryPair.range != '') {
+        dispatch(
+          addDictionaryPairAction({
+            dict: currentDict,
+            pair: newDictionaryPair,
+          })
+        );
+      } else {
+        notification['error']({
+          message: 'Error',
+          description: 'Pair values can not be empty strings',
+        });
+      }
     }
     setNewDictionaryPair(initialDictPair());
     setDictPairForm(false);
@@ -171,12 +178,19 @@ const Dictionary: React.FC<RouteComponentProps<IMatchParams>> = ({
                   size="small"
                   onClick={() => {
                     if (currentEditPair && currentDict) {
-                      dispatch(
-                        saveDictionaryPairAction({
-                          ...currentEditPair,
-                          dictId: currentDict.id,
-                        })
-                      );
+                      if (currentEditPair.domain !== '' && currentEditPair.range !== '') {
+                        dispatch(
+                          saveDictionaryPairAction({
+                            ...currentEditPair,
+                            dictId: currentDict.id,
+                          })
+                        );
+                      } else {
+                        notification['error']({
+                          message: 'Error',
+                          description: 'Pair values can not be empty strings',
+                        });
+                      }
                     }
                   }}
                 >
