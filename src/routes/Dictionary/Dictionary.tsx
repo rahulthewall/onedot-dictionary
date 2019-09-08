@@ -54,7 +54,7 @@ const Dictionary: React.FC<RouteComponentProps<IMatchParams>> = ({
 
   const handleAddDictionaryPair = () => {
     if (currentDict) {
-      if (newDictionaryPair.domain !== '' && newDictionaryPair.range != '') {
+      if (newDictionaryPair.domain !== '' && newDictionaryPair.range !== '') {
         dispatch(
           addDictionaryPairAction({
             dict: currentDict,
